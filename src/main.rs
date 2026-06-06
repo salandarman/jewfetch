@@ -7,7 +7,7 @@ struct Preferences {
     uptime:String,
     shell:String,
     mem:String,
-    shabbat:String,
+    shacharit:String,
 }
 
 fn sh(command:&str) -> String {
@@ -19,14 +19,14 @@ fn sh(command:&str) -> String {
     String::from_utf8_lossy(&take.stdout).trim().to_string()
 }
 
-fn shabbat() -> String {
+fn shacharit() -> String {
     let get_time = sh("timedatectl show | grep -i RTCTimeUSec | awk '{print $3}'");
     let time_vec: Vec<&str> = get_time.split(':').collect();
 
     let hours: i32 = time_vec[0].parse().unwrap();
     let minutes: i32 = time_vec[1].parse().unwrap();
 
-    let is_shabbat = if hours <= 9 && hours >= 6 {
+    let is_shacharit = if hours <= 9 && hours >= 6 {
         if hours == 6 && minutes >= 30 {
             true
         }
@@ -57,18 +57,18 @@ fn shabbat() -> String {
         (380-min_all+1440)%60
     };
 
-    let shabbat_message = if is_shabbat == true {
-        format!("its time to pray shabbat!")
+    let shacharit_message = if is_shacharit == true {
+        format!("its time to pray!")
     }
     else {
         format!("{} hours, {} minutes left",hour_remainder,minute_remainder)
     };
 
-    shabbat_message
+    shacharit_message
 }
 
 fn take_config() -> Preferences {
-    let shabbat_message = shabbat();
+    let shacharit_message = shacharit();
 
     Preferences {
         host:sh(r#"echo "$USER@$(cat /etc/hostname)""#),
@@ -77,7 +77,7 @@ fn take_config() -> Preferences {
         uptime:sh(r#"uptime -p"#),
         shell:sh(r#"zsh --version | cut -d' ' -f1,2"#),
         mem:sh(r#"free -m | grep Mem | awk '{print $3 "MB / " $2 "MB"}'"#),
-        shabbat:shabbat_message,
+        shacharit:shacharit_message,
     }
 }
 
@@ -107,7 +107,7 @@ fn main() {
         config.uptime,
         config.shell,
         config.mem,
-        config.shabbat,
+        config.shacharit,
         space,
         space);
 
