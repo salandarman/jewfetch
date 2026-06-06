@@ -1,6 +1,5 @@
 # Jewfetch
-<img width="502" height="280" alt="image" src="https://github.com/user-attachments/assets/5abf3d43-3dab-44ef-9ab1-aea229eefaef" />
-
+<img width="563" height="282" alt="image" src="https://github.com/user-attachments/assets/8d48ac65-7253-41f9-b782-ac826efc4aa6" />
 
 
 **Installation**
