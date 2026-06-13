@@ -1,5 +1,8 @@
-use std::{process::Command};
+use std::{fs,process::Command};
+use dirs;
+use serde::{Serialize,Deserialize};
 
+#[derive(Serialize,Deserialize,Debug)]
 struct Preferences {
     host:String,
     os:String,
@@ -7,7 +10,19 @@ struct Preferences {
     uptime:String,
     shell:String,
     mem:String,
-    shacharit:String,
+}
+
+impl Default for Preferences {
+    fn default() -> Self {
+        Self {
+            host:"echo $USER@$(cat /etc/hostname)".to_string(),
+            os:"echo \"$(grep '^PRETTY_NAME=' /etc/os-release | cut -d'\"' -f2) $(uname -m)\"".to_string(),
+            kernel:"uname -s -r".to_string(),
+            uptime:"uptime -p".to_string(),
+            shell:"zsh --version | cut -d' ' -f1,2".to_string(),
+            mem:"free -m | grep Mem | awk '{print $3 \"MB / \" $2 \"MB\"}'".to_string(),
+        }
+    }
 }
 
 fn sh(command:&str) -> String {
@@ -68,17 +83,17 @@ fn shacharit() -> String {
 }
 
 fn take_config() -> Preferences {
-    let shacharit_message = shacharit();
+    if let Some(home) = dirs::home_dir() {
+        let config_path = home.join(".config").join("jewfetch").join("config.json");
 
-    Preferences {
-        host:sh(r#"echo "$USER@$(cat /etc/hostname)""#),
-        os:sh(r#"echo "$(grep '^PRETTY_NAME=' /etc/os-release | cut -d'"' -f2) $(uname -m)""#),
-        kernel:sh(r#"uname -s -r"#),
-        uptime:sh(r#"uptime -p"#),
-        shell:sh(r#"zsh --version | cut -d' ' -f1,2"#),
-        mem:sh(r#"free -m | grep Mem | awk '{print $3 "MB / " $2 "MB"}'"#),
-        shacharit:shacharit_message,
+        if let Ok(json_content) = fs::read_to_string(config_path) {
+            if let Ok(settings) = serde_json::from_str(&json_content) {
+                return settings;
+            }
+        }
     }
+
+    Preferences::default()
 }
 
 fn main() {
@@ -100,14 +115,14 @@ fn main() {
        \\//        {}
         \/         {}
         "#,
-        config.host,
-        "-".repeat(config.host.chars().count()),
-        config.os,
-        config.kernel,
-        config.uptime,
-        config.shell,
-        config.mem,
-        config.shacharit,
+        sh(&config.host),
+        "-".repeat(sh(&config.host).chars().count()),
+        sh(&config.os),
+        sh(&config.kernel),
+        sh(&config.uptime),
+        sh(&config.shell),
+        sh(&config.mem),
+        shacharit(),
         space,
         space);
 
