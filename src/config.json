@@ -1,0 +1,8 @@
+{
+  "host":"echo $USER@$(cat /etc/hostname)",
+  "os":"echo \"$(grep '^PRETTY_NAME=' /etc/os-release | cut -d'\"' -f2) $(uname -m)\"",
+  "kernel":"uname -s -r",
+  "uptime":"uptime -p",
+  "shell":"zsh --version | cut -d' ' -f1,2",
+  "mem":"free -m | grep Mem | awk '{print $3 \"MB / \" $2 \"MB\"}'"
+}
